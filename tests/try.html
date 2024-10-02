@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="c" width="600" height="600" style="border: 2px solid black;"></canvas>
+  <script>
+    /**@type {HTMLCanvasElement} */
+    const cvs = document.getElementById('c');
+    const ctx = cvs.getContext('2d');
+    const offscreenCanvas = new window.OffscreenCanvas(600, 600);
+    const offscreenCtx = offscreenCanvas.getContext('2d');
+
+    const shapes = [
+      { cvs: new window.OffscreenCanvas(600, 600), x: 100, y: 100, width: 100, height: 100, color: 'blue' },
+      { cvs: new window.OffscreenCanvas(600, 600), x: 300, y: 300, width: 100, height: 100, color: 'red' },
+    ]
+
+    const draw = (x, y) => {
+      offscreenCtx.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
+      ctx.clearRect(0, 0, cvs.width, cvs.height);
+      shapes.forEach(shape => {
+        const ctx = shape.cvs.getContext('2d');
+        ctx.clearRect(0, 0, shape.cvs.width, shape.cvs.height);
+        ctx.beginPath();
+        ctx.fillStyle = shape.color;
+        ctx.fillRect(shape.x, shape.y, shape.width, shape.height);
+        offscreenCtx.drawImage(shape.cvs, 0, 0);
+      });
+      ctx.drawImage(offscreenCanvas, 0, 0);
+    }
+    draw();
+
+    const length = shapes.length;
+    cvs.onmousedown = e => {
+      let activeShape;
+      for (let i = -1; ++i < length;) {
+        const shape = shapes[i];
+        const tmp = shape.cvs.getContext('2d');
+        const [x, y] = [e.offsetX, e.offsetY]
+        if (x > shape.x && x < shape.x + shape.width && y > shape.y && y < shape.y + shape.height) {
+          activeShape = shape;
+          // tmp.clearRect(shape.x, shape.y, shape.width, shape.height);
+          // offscreenCtx.drawImage(shape.cvs, 0, 0);
+          // ctx.drawImage(offscreenCanvas, shape.x, shape.y, shape.width, shape.height, shape.x, shape.y, shape.width, shape.height);
+          break;
+        };
+      }
+
+      cvs.onmousemove = e => {
+        if (!activeShape) return;
+        activeShape.x = e.offsetX - activeShape.width / 2;
+        activeShape.y = e.offsetY - activeShape.height / 2;
+        draw();
+      }
+
+      cvs.onmouseup = () => {
+        cvs.onmousemove = cvs.onmouseup = null;
+      }
+    }
+  </script>
+</body>
+
+</html>

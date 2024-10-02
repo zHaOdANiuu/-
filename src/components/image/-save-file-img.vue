@@ -1,0 +1,7 @@
+<template>
+      <svg width="32" height="32">
+            <rect width="32" height="32" fill="#EB2EEB19" />
+            <rect x="2" y="2" width="28" height="20" fill="#dddddd" />
+            <rect x="2" y="26" width="28" height="2" fill="#cdcdcd" />
+      </svg>
+</template>
